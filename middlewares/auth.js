@@ -9,13 +9,7 @@ const prisma = require("../config/prisma");
 exports.authenticate = async (req, res, next) => {
     try {
         // Accept token from cookie OR Authorization Bearer header
-        let token = req?.cookies?.myCookie;
-        if (!token) {
-            const authHeader = req.headers.authorization;
-            if (authHeader && authHeader.startsWith("Bearer ")) {
-                token = authHeader.split(" ")[1];
-            }
-        }
+        let token = req?.cookies?.token;
 
         if (!token) {
             return res.status(401).json({ success: false, message: "Authentication required. Please login." });

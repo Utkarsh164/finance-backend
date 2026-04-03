@@ -37,13 +37,13 @@ exports.register = async (req, res) => {
                 role: assignedRole,
                 status: "ACTIVE",
             },
-            select: { 
-                id: true, 
-                username: true, 
-                email: true, 
-                role: true, 
-                status: true, 
-                createdAt: true 
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                role: true,
+                status: true,
+                createdAt: true
             },
         });
 
@@ -68,15 +68,15 @@ exports.login = async (req, res) => {
             return res.status(400).json({ success: false, message: "Email and password are required." });
         }
 
-        const user = await prisma.user.findUnique({ 
+        const user = await prisma.user.findUnique({
             where: { email },
-            select: { 
-                id: true, 
-                username: true, 
-                email: true, 
-                password: true, 
-                role: true, 
-                status: true 
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                password: true,
+                role: true,
+                status: true
             }
         });
 
@@ -85,7 +85,7 @@ exports.login = async (req, res) => {
         }
 
         if (user.status === "INACTIVE") {
-            return res.status(403).json({ success: false, message: "Your account has been deactivated." });
+            return res.status(403).json({ success: false, message: "Account has been deactivated." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -106,11 +106,11 @@ exports.login = async (req, res) => {
             success: true,
             message: "Logged in successfully.",
             token,   // You can return token for frontend use (optional)
-            user: { 
-                id: user.id, 
-                username: user.username, 
-                email: user.email, 
-                role: user.role 
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
             }
         });
     } catch (error) {
@@ -119,14 +119,17 @@ exports.login = async (req, res) => {
     }
 };
 
+// ─── LOGOUT ────────────────────────────────────────────────────────────────────
+exports.logout = async (req, res) => {
+    res.clearCookie("token", "", {
+        maxAge: 0,
+    });
+    res.status(200).json({ success: true, message: "user logged out" });
+}
+
 // ─── GET ALL USERS (Admin Only) ───────────────────────────────────────────────
 exports.getAllUsers = async (req, res) => {
     try {
-        // ←←← Important: Access Control
-        if (req.user.role !== "ADMIN") {
-            return res.status(403).json({ success: false, message: "Access denied. Admin only." });
-        }
-
         const { status, role, page = 1, limit = 10 } = req.query;
 
         const where = {};
@@ -149,11 +152,11 @@ exports.getAllUsers = async (req, res) => {
         res.status(200).json({
             success: true,
             data: users,
-            pagination: { 
-                total, 
-                page: parseInt(page), 
-                limit: parseInt(limit), 
-                pages: Math.ceil(total / parseInt(limit)) 
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / parseInt(limit))
             }
         });
     } catch (error) {
@@ -165,11 +168,6 @@ exports.getAllUsers = async (req, res) => {
 // ─── UPDATE USER (Admin Only) ─────────────────────────────────────────────────
 exports.updateUser = async (req, res) => {
     try {
-        // ←←← Important: Access Control
-        if (req.user.role !== "ADMIN") {
-            return res.status(403).json({ success: false, message: "Access denied. Admin only." });
-        }
-
         const { id } = req.params;
         const { username, role, status } = req.body;
 
@@ -206,57 +204,6 @@ exports.updateUser = async (req, res) => {
         res.status(200).json({ success: true, message: "User updated successfully.", data: updated });
     } catch (error) {
         console.error("Error updating user:", error);
-        res.status(500).json({ success: false, message: "Internal server error." });
-    }
-};
-
-/**
- * GET /users/:id
- * 
- * Rules:
- * - Normal users (Viewer/Analyst) can only view their OWN profile
- * - Admin can view ANY user's profile
- */
-exports.getUserById = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // If route is /me, use current user's ID
-        const targetId = id === "me" ? req.user.id : id;
-
-        // Access Control
-        if (req.user.role !== "ADMIN" && targetId !== req.user.id) {
-            return res.status(403).json({ 
-                success: false, 
-                message: "You can only view your own profile." 
-            });
-        }
-
-        const user = await prisma.user.findUnique({
-            where: { id: targetId },
-            select: { 
-                id: true,
-                username: true,
-                email: true,
-                role: true,
-                status: true,
-                createdAt: true,
-                updatedAt: true
-            }
-        });
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User not found." });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "User profile fetched successfully.",
-            data: user
-        });
-
-    } catch (error) {
-        console.error("Error fetching user:", error);
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 };

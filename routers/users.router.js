@@ -22,15 +22,10 @@ router.post("/login", login);
 
 router.get("/logout", authenticate, logout);
 
-// Get own profile (recommended way)
-router.get("/me", authenticate, getUserById);
 
-// Get any user by ID - Admin only (non-admins can only use /me)
-router.get("/:id", authenticate, requireAdmin, getUserById);
 
 // ====================== ADMIN ONLY ROUTES ======================
-router.get("/", authenticate, requireAdmin, getAllUsers);        // GET /users
-router.put("/:id", authenticate, requireAdmin, updateUser);
-router.delete("/:id", authenticate, requireAdmin, deleteUser);
+router.get("/all", authenticate, requireAdmin, getAllUsers);        // GET /users
+router.put("/update/:id", authenticate, requireAdmin, updateUser);
 
 module.exports = router;
