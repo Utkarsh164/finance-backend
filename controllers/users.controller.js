@@ -105,7 +105,6 @@ exports.login = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Logged in successfully.",
-            token,   // You can return token for frontend use (optional)
             user: {
                 id: user.id,
                 username: user.username,
