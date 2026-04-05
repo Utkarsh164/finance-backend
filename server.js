@@ -11,18 +11,15 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
 app.get("/", (req, res) => {
   res
     .status(200)
     .json({ success: true, message: "Finance Backend API is running." });
 });
 
-// Routes
 app.use("/users", userRouter);
 app.use("/transactions", transactionRouter);
 
-// 404 handler
 app.use((req, res) => {
   res
     .status(404)
@@ -32,7 +29,6 @@ app.use((req, res) => {
     });
 });
 
-// Global error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(500).json({ success: false, message: "Internal server error." });
@@ -40,5 +36,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, (err) => {
   if (err) console.error(err);
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(` Server running on port ${PORT}`);
 });

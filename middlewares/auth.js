@@ -2,13 +2,8 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 const prisma = require("../config/prisma");
 
-/**
- * authenticate — verifies JWT from cookie or Authorization header.
- * Attaches req.user with { id, email, role, status } for downstream use.
- */
 exports.authenticate = async (req, res, next) => {
     try {
-        // Accept token from cookie OR Authorization Bearer header
         let token = req?.cookies?.token;
 
         if (!token) {
@@ -44,10 +39,6 @@ exports.authenticate = async (req, res, next) => {
     }
 };
 
-/**
- * requireAdmin — only users with ADMIN role can proceed.
- * Must be used after authenticate.
- */
 exports.requireAdmin = (req, res, next) => {
     if (req.user?.role !== "ADMIN") {
         return res.status(403).json({
@@ -58,10 +49,6 @@ exports.requireAdmin = (req, res, next) => {
     next();
 };
 
-/**
- * requireAnalystOrAbove — ANALYST and ADMIN can proceed. VIEWERs are blocked.
- * Must be used after authenticate.
- */
 exports.requireAnalystOrAbove = (req, res, next) => {
     const allowed = ["ANALYST", "ADMIN"];
     if (!allowed.includes(req.user?.role)) {

@@ -11,17 +11,14 @@ const { authenticate, requireAdmin, requireAnalystOrAbove } = require("../middle
 
 const router = Router();
 
-// All routes require authentication
 router.use(authenticate);
 
-// Dashboard — must be before /:id to avoid route conflict
 router.get("/dashboard", requireAnalystOrAbove, getDashboardSummary);
 
-// CRUD
 router.post("/", requireAnalystOrAbove, createTransaction);
-router.get("/", getAllTransactions);                              // all roles (viewers read-only)
-router.get("/:id", getTransactionById);                          // all roles (scoped to own)
-router.put("/:id", requireAnalystOrAbove, updateTransaction);   // analyst+ 
-router.delete("/:id", requireAdmin, deleteTransaction);          // admin only
+router.get("/", getAllTransactions);
+router.get("/:id", getTransactionById);
+router.put("/:id", requireAnalystOrAbove, updateTransaction);
+router.delete("/:id", requireAnalystOrAbove, deleteTransaction);
 
 module.exports = router;

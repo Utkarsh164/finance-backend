@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const prisma = require("../config/prisma");
 const { generateToken } = require("../utils/generate.Token");
 
-// ─── REGISTER ────────────────────────────────────────────────────────────────
 exports.register = async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -58,8 +57,6 @@ exports.register = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
-
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -95,9 +92,9 @@ exports.login = async (req, res) => {
 
         const token = generateToken(user.id);
 
-        res.cookie("token", token, {   // Better cookie name
+        res.cookie("token", token, {   
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000, // 24 hours is better
+            maxAge: 24 * 60 * 60 * 1000, 
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict"
         });
@@ -118,7 +115,6 @@ exports.login = async (req, res) => {
     }
 };
 
-// ─── LOGOUT ────────────────────────────────────────────────────────────────────
 exports.logout = async (req, res) => {
     res.clearCookie("token", "", {
         maxAge: 0,
@@ -126,7 +122,6 @@ exports.logout = async (req, res) => {
     res.status(200).json({ success: true, message: "user logged out" });
 }
 
-// ─── GET ALL USERS (Admin Only) ───────────────────────────────────────────────
 exports.getAllUsers = async (req, res) => {
     try {
         const { status, role, page = 1, limit = 10 } = req.query;
@@ -164,7 +159,6 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-// ─── UPDATE USER (Admin Only) ─────────────────────────────────────────────────
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -185,7 +179,6 @@ exports.updateUser = async (req, res) => {
             return res.status(400).json({ success: false, message: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
         }
 
-        // Prevent self-demotion (optional safety)
         if (id === req.user.id && role && role.toUpperCase() !== "ADMIN") {
             return res.status(400).json({ success: false, message: "You cannot change your own role." });
         }
