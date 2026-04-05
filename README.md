@@ -321,16 +321,6 @@ Response:
 
 ---
 
-## Future Improvements
-
-* Refresh token system
-* Soft delete support
-* Unit & integration testing
-* Swagger/OpenAPI documentation
-* Rate limiting
-
----
-
 
 Important:
 
